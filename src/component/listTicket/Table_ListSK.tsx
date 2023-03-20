@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AppContext } from "../context/AppProvider";
 import Table from "react-bootstrap/Table";
-import styles from "./ListTicketSK.module.scss";
+import styles from "./ListTicket.module.scss";
 import classnames from "classnames/bind";
+import ModalChangedate from "../Modal/ModalChangedate/ModalChangedate";
+
 const cx = classnames.bind(styles);
 
 const Table_ListSK = () => {
+  const { setchangeDate } = useContext(AppContext);
+  const handleShow = () => {
+    setchangeDate(true);
+    console.log(123);
+  };
   return (
     <div>
       <Table>
@@ -20,8 +28,8 @@ const Table_ListSK = () => {
             <th>Cổng check-in</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
+        <tbody className={cx("wrap_Table_body")}>
+          <tr onClick={handleShow}>
             <td>1</td>
             <td>ALT20210501</td>
             <td>123456789034</td>
@@ -38,6 +46,7 @@ const Table_ListSK = () => {
           </tr>
         </tbody>
       </Table>
+      <ModalChangedate />
     </div>
   );
 };
