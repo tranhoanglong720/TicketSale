@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import styles from "./PackTicket.module.scss";
 import classnames from "classnames/bind";
 import { Container } from "react-bootstrap";
@@ -11,20 +11,55 @@ import { Input } from "antd";
 import { AppContext } from "../context/AppProvider";
 import Table_PackTicket from "./Table_PackTicket";
 import ModalAdd from "../Modal/ModalAdd/ModalAdd";
-
+import { getDatabase, get, child, ref, push } from "firebase/database";
+interface TicketsIn {
+  id?: string;
+  nameTick?: string;
+  dataUse?: string;
+  dateOutUse?: string;
+  price: number;
+  priceCombo: number;
+  AmoutCombo: number;
+  State?: boolean;
+}
 const { Search } = Input;
 
 const cx = classnames.bind(styles);
 const PackTicket = () => {
   const { setAdd } = useContext(AppContext);
-  const [packed, setPacked] = useState(true);
-
+  const [packed, setPacked] = useState<Boolean>(true);
+  const [Tickets, setTickets] = useState<TicketsIn[] | null>([]);
   const handleAdd = () => {
     setAdd(true);
   };
   const handleChangePacked = () => {
     setPacked(!packed);
   };
+
+  useEffect(() => {
+    const dbRef = ref(getDatabase());
+    // const starCountRef = dataref.ref("ListTicket/1").get();
+
+    get(child(dbRef, `ListTicket`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          let temp: any = [];
+          snapshot.forEach((item: any) => {
+            // console.log(item.val());
+            // console.log(item.key);
+            temp.push(item.val());
+          });
+
+          setTickets(temp);
+        } else {
+          console.log("No data available");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   return (
     <Container fluid className={cx("wrap_ListSK")}>
       <h3 style={{ fontWeight: "bold" }}>Danh Sách Vé</h3>
@@ -41,7 +76,7 @@ const PackTicket = () => {
         </div>
       </div>
       <div className={cx("tblSk")}>
-        <Table_PackTicket />
+        <Table_PackTicket data={Tickets} />
       </div>
       <ModalAdd />
     </Container>

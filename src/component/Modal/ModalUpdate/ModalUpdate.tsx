@@ -1,22 +1,57 @@
-import React, { useState, useContext } from "react";
-import { Button, Checkbox, Modal } from "antd";
+import React, { useState, useContext, useEffect } from "react";
+import { Button, Checkbox, Modal, Space } from "antd";
 import { Input, Typography, Radio, Select, Tag } from "antd";
 import Row from "react-bootstrap/esm/Row";
 import Col from "react-bootstrap/esm/Col";
 import { AppContext } from "../../context/AppProvider";
 import styles from "./ModalUpdate.module.scss";
 import classNames from "classnames/bind";
-
+import { getDatabase, ref, child, push, update } from "firebase/database";
+import { dataref } from "../../fireBase/FireBase";
+interface TicketsIn {
+  id?: string;
+  nameTick?: string;
+  dataUse?: string;
+  dateOutUse?: string;
+  price?: number;
+  priceCombo?: number;
+  AmoutCombo?: number;
+  State?: boolean;
+}
+type Props = { data: TicketsIn };
 const cx = classNames.bind(styles);
-const ModalUpdate: React.FC = () => {
+const ModalUpdate = (props: Props) => {
   const { update, setUpdate } = useContext(AppContext);
+  const [Tickets, setTickets] = useState<TicketsIn>({
+    id: props.data.id,
+    nameTick: props.data.nameTick,
+    dataUse: props.data.dataUse,
+    dateOutUse: props.data.dateOutUse,
+    price: props.data.price,
+    priceCombo: props.data.priceCombo,
+    AmoutCombo: props.data.AmoutCombo,
+    State: props.data.State,
+  });
 
   const showModal = () => {
     setUpdate(true);
   };
+  // console.log(props.data.id);
 
-  const handleOk = () => {
-    setUpdate(false);
+  console.log(Tickets);
+  const handleUpdate = () => {
+    // setUpdate(false);
+    // const db = getDatabase();
+    // Write the new post's data simultaneously in the posts list and the user's post list.
+    // const updates: any = {};
+    // updates["ListTicket/" + props.data.id] = Tickets;
+
+    dataref
+      .ref("ListTicket/" + props.data.id)
+      .update(Tickets)
+      .catch(alert);
+    // update(ref(db), updates);
+    console.log(123);
   };
 
   const handleCancel = () => {
@@ -27,7 +62,6 @@ const ModalUpdate: React.FC = () => {
     <>
       <Modal
         open={update}
-        onOk={handleOk}
         onCancel={handleCancel}
         centered
         className={cx("WrapFilterTitle")}
@@ -40,8 +74,8 @@ const ModalUpdate: React.FC = () => {
             Hủy
           </Button>,
           <Button
-            key="back"
-            onClick={handleCancel}
+            key="Add"
+            onClick={handleUpdate}
             className={cx("WrapFilterModal_Luu")}
           >
             Lưu
@@ -67,6 +101,13 @@ const ModalUpdate: React.FC = () => {
                 <div>
                   <input
                     type="text"
+                    onChange={(e) =>
+                      setTickets({
+                        ...Tickets,
+                        id: e.target.value,
+                      })
+                    }
+                    defaultValue={props.data.id}
                     className={cx("inp_Ten")}
                     placeholder="PKG20210502"
                   />
@@ -79,6 +120,7 @@ const ModalUpdate: React.FC = () => {
                   <input
                     type="text"
                     className={cx("inp_Ten")}
+                    defaultValue={props.data.nameTick}
                     placeholder="Hội chợ triển lãm hàng tiêu dùng 2021"
                   />
                 </div>
@@ -88,11 +130,31 @@ const ModalUpdate: React.FC = () => {
               <Row>
                 <Col>
                   <p className={cx("txtNgay")}>Ngày áp dụng</p>
-                  <input type="date" className={cx("inp_Ngay")} />
+                  <input
+                    type="date"
+                    className={cx("inp_Ngay")}
+                    defaultValue={props.data.dataUse}
+                    onChange={(e) =>
+                      setTickets({
+                        ...Tickets,
+                        dataUse: e.target.value,
+                      })
+                    }
+                  />
                 </Col>
                 <Col>
                   <p className={cx("txtNgay")}>Ngày hết hạn</p>
-                  <input type="date" className={cx("inp_Ngay")} />
+                  <input
+                    type="date"
+                    className={cx("inp_Ngay")}
+                    defaultValue={props.data.dateOutUse}
+                    onChange={(e) =>
+                      setTickets({
+                        ...Tickets,
+                        dateOutUse: e.target.value,
+                      })
+                    }
+                  />
                 </Col>
               </Row>
             </div>
@@ -106,6 +168,13 @@ const ModalUpdate: React.FC = () => {
                 type="text"
                 className={cx("inp_ve")}
                 placeholder="Giá vé"
+                defaultValue={props.data.price}
+                onChange={(e) =>
+                  setTickets({
+                    ...Tickets,
+                    price: parseInt(e.target.value),
+                  })
+                }
               />
               /vé
             </div>
@@ -116,28 +185,48 @@ const ModalUpdate: React.FC = () => {
                 type="text"
                 className={cx("inp_ve")}
                 placeholder="Giá vé"
+                defaultValue={props.data.priceCombo}
+                onChange={(e) =>
+                  setTickets({
+                    ...Tickets,
+                    priceCombo: parseInt(e.target.value),
+                  })
+                }
               />
               /
               <input
                 type="text"
                 className={cx("inp_songuoi")}
                 placeholder="Giá vé"
+                defaultValue={props.data.AmoutCombo}
+                onChange={(e) =>
+                  setTickets({
+                    ...Tickets,
+                    AmoutCombo: parseInt(e.target.value),
+                  })
+                }
               />
               vé
             </div>
             <div>
               <h5>Tình trạng</h5>
               <div>
-                <Input.Group style={{ display: "flex" }}>
-                  <Select defaultValue="Medium">
-                    <Select.Option value="High" label="High">
+                <Space.Compact style={{ display: "flex" }}>
+                  <Select
+                    defaultValue={props.data.State}
+                    onChange={(value: boolean) => {
+                      // console.log(value);
+                      setTickets({ ...Tickets, State: value });
+                    }}
+                  >
+                    <Select.Option value={true} label="Đang áp dụng">
                       Đang áp dụng
                     </Select.Option>
-                    <Select.Option value="Medium" label="Medium">
+                    <Select.Option value={false} label="Tắt">
                       Tắt
                     </Select.Option>
                   </Select>
-                </Input.Group>
+                </Space.Compact>
               </div>
             </div>
             <div>
