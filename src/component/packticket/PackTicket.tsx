@@ -11,7 +11,11 @@ import { Input } from "antd";
 import { AppContext } from "../context/AppProvider";
 import Table_PackTicket from "./Table_PackTicket";
 import ModalAdd from "../Modal/ModalAdd/ModalAdd";
-import { getDatabase, get, child, ref, push } from "firebase/database";
+// import { useSelector } from "react-redux";
+import { Action } from "@remix-run/router";
+import TodoSlice, { getPackTicket } from "../reudux/slices/TodoSlice";
+// import { useAppDispatch } from "../reudux/store";
+import { useAppDispatch, useAppSelector } from "../reudux/hook";
 interface TicketsIn {
   id?: string;
   nameTick?: string;
@@ -19,8 +23,9 @@ interface TicketsIn {
   dateOutUse?: string;
   price: number;
   priceCombo: number;
-  AmoutCombo: number;
-  State?: boolean;
+  amoutCombo: number;
+  state?: boolean;
+  nameTickSK?: string;
 }
 const { Search } = Input;
 
@@ -28,7 +33,10 @@ const cx = classnames.bind(styles);
 const PackTicket = () => {
   const { setAdd } = useContext(AppContext);
   const [packed, setPacked] = useState<Boolean>(true);
-  const [Tickets, setTickets] = useState<TicketsIn[] | null>([]);
+  // const [Tickets, setTickets] = useState<TicketsIn[] | null>([]);
+  const dispatch = useAppDispatch();
+  const Tickets = useAppSelector((state: any) => state.TodoTicket.packedTicket);
+
   const handleAdd = () => {
     setAdd(true);
   };
@@ -37,28 +45,8 @@ const PackTicket = () => {
   };
 
   useEffect(() => {
-    const dbRef = ref(getDatabase());
-    // const starCountRef = dataref.ref("ListTicket/1").get();
-
-    get(child(dbRef, `ListTicket`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          let temp: any = [];
-          snapshot.forEach((item: any) => {
-            // console.log(item.val());
-            // console.log(item.key);
-            temp.push(item.val());
-          });
-
-          setTickets(temp);
-        } else {
-          console.log("No data available");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+    dispatch(getPackTicket());
+  }, [dispatch, Tickets]);
 
   return (
     <Container fluid className={cx("wrap_ListSK")}>

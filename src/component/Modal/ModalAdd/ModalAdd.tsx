@@ -11,16 +11,20 @@ import classNames from "classnames/bind";
 import { dataref } from "../../fireBase/FireBase";
 import { v4 as uuidv4 } from "uuid";
 import { child, getDatabase, ref, get, push } from "firebase/database";
+import { useDispatch } from "react-redux";
+import TodoSlice from "../../reudux/slices/TodoSlice";
 
 interface TicketsIn {
   // id?: string | null;
   nameTick?: string;
+  nameTickSK?: string;
   dataUse?: string;
   dateOutUse?: string;
   price?: number;
   priceCombo?: number;
-  AmoutCombo?: number;
-  State?: boolean;
+  amoutCombo?: number;
+  state?: boolean;
+  gate?: string;
 }
 const cx = classNames.bind(styles);
 
@@ -41,29 +45,36 @@ const ModalAdd: React.FC = () => {
   //   });
 
   const { add, setAdd } = useContext(AppContext);
-
+  const [checkOne, setCheckOne] = useState<boolean>(false);
+  const [checkMulti, setCheckMulti] = useState<boolean>(false);
+  const dispatch = useDispatch();
   const [Tickets, setTickets] = useState<TicketsIn | undefined>({
     // id: idK,
-    nameTick: "",
+    nameTick: "Gói gia đình",
+    nameTickSK: "",
     dataUse: "",
     dateOutUse: "",
     price: 0,
     priceCombo: 0,
-    AmoutCombo: 1,
-    State: true,
+    amoutCombo: 1,
+    state: true,
+    gate: "Cổng 1",
   });
   const showModal = () => {
     setAdd(true);
   };
 
   const handleAdd = () => {
-    const db = getDatabase();
-    const idK = push(ref(db, "ListTicket")).key;
-    // setTickets({ ...Tickets, id: idK });
-    const data = dataref.ref(`ListTicket`).push();
-
-    data.set({ ...Tickets, id: data.key }).catch(alert);
+    // const db = getDatabase();
+    // const idK = push(ref(db, "TicketPacked")).key;
+    // // setTickets({ ...Tickets, id: idK });
+    // const data = dataref.ref(`TicketPacked`).push();
+    // data.set({ ...Tickets, id: data.key }).catch(alert);
     // console.log(Tickets);
+    dispatch(TodoSlice.actions.addPackTicket(Tickets));
+    for (let i = 0; i < 3; i++) {
+      dispatch(TodoSlice.actions.addListTicket(Tickets));
+    }
   };
 
   const handleCancel = () => {
@@ -110,20 +121,44 @@ const ModalAdd: React.FC = () => {
               <label className={cx("txtTen")}>Tên gói vé</label>
               <label className={cx("txtSao")}>*</label>
               <div>
-                <input
-                  type="text"
-                  className={cx("inp_Ten")}
-                  placeholder="Nhập tên gói vé"
-                  onChange={(e) =>
-                    setTickets({ ...Tickets, nameTick: e.target.value })
-                  }
-                />
+                <Space.Compact style={{ display: "flex" }}>
+                  <Select
+                    defaultValue="Gói gia đình"
+                    onChange={(value: string) => {
+                      setTickets({ ...Tickets, nameTick: value });
+                    }}
+                  >
+                    <Select.Option value="Gói gia đình" label="Gói gia đình">
+                      Gói gia đình
+                    </Select.Option>
+                    <Select.Option value="Gói sự kiện" label="Gói sự kiện">
+                      Gói sự kiện
+                    </Select.Option>
+                  </Select>
+                </Space.Compact>
               </div>
             </div>
+            {Tickets?.nameTick === "Gói sự kiện" ? (
+              <div>
+                <label className={cx("txtTen")}>Tên sự kiện</label>
+
+                <div>
+                  <input
+                    type="text"
+                    className={cx("inp_Ten")}
+                    placeholder="Nhập tên sự kiện"
+                    onChange={(e) =>
+                      setTickets({ ...Tickets, nameTickSK: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            ) : null}
+
             <div>
               <Row>
                 <Col>
-                  <p className={cx("txtNgay")}>Ngày áp dụng</p>
+                  <h5 className={cx("txtNgay")}>Ngày áp dụng</h5>
                   <input
                     type="date"
                     className={cx("inp_Ngay")}
@@ -136,7 +171,7 @@ const ModalAdd: React.FC = () => {
                   />
                 </Col>
                 <Col>
-                  <p className={cx("txtNgay")}>Ngày hết hạn</p>
+                  <h5 className={cx("txtNgay")}>Ngày hết hạn</h5>
                   <input
                     type="date"
                     className={cx("inp_Ngay")}
@@ -154,10 +189,16 @@ const ModalAdd: React.FC = () => {
               <h5 className={cx("txtNgay")}>Giá vé áp dụng </h5>
             </div>
             <div className={cx("Vele")}>
-              <Checkbox />
+              <Checkbox
+                checked={checkOne}
+                onChange={(e) => {
+                  setCheckOne(e.target.checked);
+                }}
+              />
               <p className={cx("txtVe")}>Vé lẻ (vnđ/vé) với giá</p>
               <input
                 type="number"
+                disabled={!checkOne}
                 className={cx("inp_ve")}
                 placeholder="Giá vé"
                 onChange={(e) =>
@@ -167,14 +208,19 @@ const ModalAdd: React.FC = () => {
               /vé
             </div>
             <div className={cx("Vele")}>
-              <Checkbox />
+              <Checkbox
+                checked={checkMulti}
+                onChange={(e) => {
+                  setCheckMulti(e.target.checked);
+                }}
+              />
               <p className={cx("txtVe")}>Combo vé với giá</p>
               <input
+                disabled={!checkMulti}
                 type="text"
                 className={cx("inp_ve")}
                 placeholder="Giá vé"
                 onChange={(e) => {
-                  console.log(124);
                   setTickets({
                     ...Tickets,
                     priceCombo: parseInt(e.target.value),
@@ -183,13 +229,14 @@ const ModalAdd: React.FC = () => {
               />
               /
               <input
+                disabled={!checkMulti}
                 type="text"
                 className={cx("inp_songuoi")}
-                placeholder="Giá vé"
+                placeholder="vé"
                 onChange={(e) =>
                   setTickets({
                     ...Tickets,
-                    AmoutCombo: parseInt(e.target.value),
+                    amoutCombo: parseInt(e.target.value),
                   })
                 }
               />
@@ -203,7 +250,7 @@ const ModalAdd: React.FC = () => {
                     defaultValue={true}
                     onChange={(value: boolean) => {
                       console.log(value);
-                      setTickets({ ...Tickets, State: value });
+                      setTickets({ ...Tickets, state: value });
                     }}
                   >
                     <Select.Option value={true} label="Đang áp dụng">
@@ -211,6 +258,35 @@ const ModalAdd: React.FC = () => {
                     </Select.Option>
                     <Select.Option value={false} label="Tắt">
                       Tắt
+                    </Select.Option>
+                  </Select>
+                </Space.Compact>
+              </div>
+            </div>
+            <div>
+              <h5>Cổng vào</h5>
+              <div>
+                <Space.Compact style={{ display: "flex" }}>
+                  <Select
+                    defaultValue="Cổng 1"
+                    onChange={(value: string) => {
+                      setTickets({ ...Tickets, gate: value });
+                    }}
+                  >
+                    <Select.Option value="Cổng 1" label="Cổng 1">
+                      Cổng 1
+                    </Select.Option>
+                    <Select.Option value="Cổng 2" label="Cổng 2">
+                      Cổng 2
+                    </Select.Option>
+                    <Select.Option value="Cổng 3" label="Cổng 3">
+                      Cổng 3
+                    </Select.Option>
+                    <Select.Option value="Cổng 4" label="Cổng 4">
+                      Cổng 4
+                    </Select.Option>
+                    <Select.Option value="Cổng 5" label="Cổng 5">
+                      Cổng 5
                     </Select.Option>
                   </Select>
                 </Space.Compact>

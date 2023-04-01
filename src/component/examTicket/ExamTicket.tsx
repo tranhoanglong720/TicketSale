@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styles from "./ExamTicket.module.scss";
 import classNames from "classnames/bind";
 import { Container } from "react-bootstrap";
@@ -9,13 +9,63 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Input } from "antd";
 import Table_ExamTicketSK from "./Table_ExamTicketSK";
 import Table_ExamTicketGD from "./Table_ExamTicketGD";
+import {
+  getDatabase,
+  get,
+  child,
+  ref,
+  push,
+  query,
+  orderByChild,
+} from "firebase/database";
+import { AppContext } from "../context/AppProvider";
+import { dataref } from "../fireBase/FireBase";
+import { useAppDispatch, useAppSelector } from "../reudux/hook";
+import TodoSlice, { getListTickets } from "../reudux/slices/TodoSlice";
+import {
+  todoRemainingSelector,
+  todoRemainingSelectorSK,
+} from "../reudux/selector";
+
+import { useSelector } from "react-redux";
+import FilterSlice from "../reudux/slices/FilterSlice";
+
+interface TicketsIn {
+  NamePacke?: string;
+  dateUsed?: string;
+  gateCheck?: string;
+  idVe?: string;
+  nameSK: string;
+  priceVe: number;
+  stateUsed: string;
+}
+
 const { Search } = Input;
 const cx = classNames.bind(styles);
 const ExamTicket = () => {
-  const [packed, setPacked] = useState(true);
+  // const [packed, setPacked] = useState(true);
+  const Tickets = useSelector(todoRemainingSelector);
+  const TicketSKs = useSelector(todoRemainingSelectorSK);
+  // console.log(Tickets);
+  // const [Tickets, setTickets] = useState<TicketsIn[]>([]);
+  // const [TicketSKs, setTicketSKs] = useState<TicketsIn[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const { item, status, packed, setPacked } = useContext(AppContext);
+  const dispatch = useAppDispatch();
 
   const handleChangePacked = () => {
     setPacked(!packed);
+  };
+  useEffect(() => {
+    dispatch(getListTickets());
+  }, [dispatch]);
+
+  const handleCheck = () => {
+    dispatch(TodoSlice.actions.CheckListTicket(item));
+  };
+  const handleSearch = (e: any) => {
+    setSearch(e.target.value);
+    dispatch(FilterSlice.actions.Search(e.target.value));
   };
   return (
     <Container fluid className={cx("wrap_ListSK")}>
@@ -35,15 +85,34 @@ const ExamTicket = () => {
         </Nav>
       </div>
       <div className={cx("ListSK-filter")}>
-        <Search placeholder="Tìm bằng số vé" className={cx("ListSK-search")} />
-        <div className={cx("btn")}>
-          <div className={cx("btnChot")}>
-            <h5 className={cx("btnChot_txt")}>Chốt Đối soát</h5>
+        <Search
+          placeholder="Tìm bằng số vé"
+          className={cx("ListSK-search")}
+          value={search}
+          onChange={handleSearch}
+        />
+        {status === "Đã đối soát" ? (
+          <div className={cx("btn")}>
+            <div className={cx("btnXuat")}>
+              <h5 className={cx("btnXuat_txt")}>Xuất File(.csv)</h5>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={cx("btn")}>
+            <div className={cx("btnChot")}>
+              <h5 className={cx("btnChot_txt")} onClick={handleCheck}>
+                Chốt Đối soát
+              </h5>
+            </div>
+          </div>
+        )}
       </div>
       <div className={cx("tblSk")}>
-        {packed ? <Table_ExamTicketSK /> : <Table_ExamTicketGD />}
+        {packed ? (
+          <Table_ExamTicketSK data={TicketSKs} />
+        ) : (
+          <Table_ExamTicketGD data={Tickets} />
+        )}
       </div>
     </Container>
   );

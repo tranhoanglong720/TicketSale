@@ -17,8 +17,9 @@ interface TicketsIn {
   dateOutUse?: string;
   price: number;
   priceCombo: number;
-  AmoutCombo: number;
-  State?: boolean;
+  amoutCombo: number;
+  state?: boolean;
+  nameTickSK?: string;
 }
 type Props = { data: TicketsIn[] | null };
 
@@ -31,8 +32,8 @@ const Table_PackTicket = (props: Props) => {
     dateOutUse: "",
     price: 0,
     priceCombo: 0,
-    AmoutCombo: 0,
-    State: true,
+    amoutCombo: 0,
+    state: true,
   });
   const handleShow = (item: TicketsIn) => {
     setUpdate(true);
@@ -41,7 +42,7 @@ const Table_PackTicket = (props: Props) => {
 
   // console.log(props.data);
   // props.data?.map((item) => {
-  console.log(item);
+
   // });
 
   return (
@@ -79,10 +80,10 @@ const Table_PackTicket = (props: Props) => {
                   style: "currency",
                   currency: "VND",
                 }).format(item.priceCombo)}{" "}
-                /{item.AmoutCombo} Vé
+                /{item.amoutCombo} Vé
               </td>
               <td>
-                {item.State ? (
+                {item.state ? (
                   <div className={cx("wrap_state")}>
                     <img
                       src={require("../../assentce/xanh.png")}
