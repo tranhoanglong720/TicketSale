@@ -56,10 +56,14 @@ const Table_ExamTicketGD = (props: Props) => {
               <td>{item.dateUsed}</td>
               <td>Vé cổng</td>
               <td>{item.gateCheck}</td>
-              {item.stateUsed === "true" ? (
+              {item.stateUsed === "true1" ? (
                 <td className={cx("wrap_Table_txtD")}>Đã đối soát</td>
               ) : (
-                <td className={cx("wrap_Table_txt")}>Chưa đối soát</td>
+                <td>
+                  {item.stateUsed === "false1" ? (
+                    <div className={cx("wrap_Table_txt")}>Chưa đối soát</div>
+                  ) : null}
+                </td>
               )}
             </tr>
           ))}

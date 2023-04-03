@@ -57,7 +57,7 @@ const Table_ExamTicketSK = (props: Props) => {
               <td>{item.dateUsed}</td>
               <td>Vé cổng</td>
               <td>{item.gateCheck}</td>
-              {item.stateUsed === "true" ? (
+              {item.stateUsed === "true1" ? (
                 <td className={cx("wrap_Table_txtD")}>Đã đối soát</td>
               ) : (
                 <td className={cx("wrap_Table_txt")}>Chưa đối soát</td>

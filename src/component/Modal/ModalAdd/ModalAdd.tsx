@@ -72,9 +72,11 @@ const ModalAdd: React.FC = () => {
     // data.set({ ...Tickets, id: data.key }).catch(alert);
     // console.log(Tickets);
     dispatch(TodoSlice.actions.addPackTicket(Tickets));
-    for (let i = 0; i < 3; i++) {
-      dispatch(TodoSlice.actions.addListTicket(Tickets));
-    }
+    setTimeout(() => {
+      for (let i = 0; i < 3; i++) {
+        dispatch(TodoSlice.actions.addListTicket(Tickets));
+      }
+    }, 5000);
   };
 
   const handleCancel = () => {

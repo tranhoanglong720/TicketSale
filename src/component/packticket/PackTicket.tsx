@@ -16,6 +16,9 @@ import { Action } from "@remix-run/router";
 import TodoSlice, { getPackTicket } from "../reudux/slices/TodoSlice";
 // import { useAppDispatch } from "../reudux/store";
 import { useAppDispatch, useAppSelector } from "../reudux/hook";
+import { useSelector, useDispatch } from "react-redux";
+
+import { CSVLink } from "react-csv";
 interface TicketsIn {
   id?: string;
   nameTick?: string;
@@ -34,8 +37,10 @@ const PackTicket = () => {
   const { setAdd } = useContext(AppContext);
   const [packed, setPacked] = useState<Boolean>(true);
   // const [Tickets, setTickets] = useState<TicketsIn[] | null>([]);
-  const dispatch = useAppDispatch();
-  const Tickets = useAppSelector((state: any) => state.TodoTicket.packedTicket);
+  // const dispatch = useAppDispatch();
+  const dispatch: any = useDispatch();
+  // const Tickets = useAppSelector((state: any) => state.TodoTicket.packedTicket);
+  const Tickets = useSelector((state: any) => state.TodoTicket.packedTicket);
 
   const handleAdd = () => {
     setAdd(true);
@@ -43,10 +48,34 @@ const PackTicket = () => {
   const handleChangePacked = () => {
     setPacked(!packed);
   };
-
+  console.log(Tickets);
   useEffect(() => {
     dispatch(getPackTicket());
   }, [dispatch, Tickets]);
+  const headers = [
+    { label: "STT", key: "index" },
+    { label: "Booking Code", key: "id" },
+    { label: "Tên gói vé", key: "nameTick" },
+    { label: "Ngày áp dụng", key: "dataUse" },
+    { label: "Ngày hết hạn", key: "dateOutUse" },
+    { label: "Giá vé (VNĐ/Vé)", key: "price" },
+    { label: "Giá Combo (VNĐ/Combo)", key: "priceCombo" },
+    { label: "Số lượng Combo (VNĐ/Combo)", key: "amoutCombo" },
+    { label: "Tình trạng", key: "state" },
+  ];
+  const data = Tickets.map((item: any, index: string) => {
+    return {
+      ...item,
+      id: item.id.slice(1),
+      index: index,
+      state: item.state === true ? "Đang Sử Dụng" : "Tắt",
+    };
+  });
+
+  const csv = {
+    data: data,
+    headers: headers,
+  };
 
   return (
     <Container fluid className={cx("wrap_ListSK")}>
@@ -55,9 +84,9 @@ const PackTicket = () => {
       <div className={cx("ListSK-filter")}>
         <Search placeholder="Tìm bằng số vé" className={cx("ListSK-search")} />
         <div className={cx("btn")}>
-          <div className={cx("btnFile")}>
+          <CSVLink {...csv} className={cx("btnFile")}>
             <h5 className={cx("btnLoc_txt")}>Xuất File(.csv)</h5>
-          </div>
+          </CSVLink>
           <div className={cx("btnAdd")} onClick={handleAdd}>
             <h5 className={cx("btnAdd_txt")}>Thêm gói vé</h5>
           </div>

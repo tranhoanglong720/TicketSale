@@ -19,6 +19,9 @@
   flex-direction: row;
   justify-content: center;
 }
+.btn > a {
+  text-decoration: none;
+}
 .btnAdd {
   display: flex;
   flex-direction: row;
@@ -47,6 +50,7 @@
   border-radius: 10px;
   margin-left: 10px;
 }
+
 .btnLoc_txt {
   font-size: 18px;
   margin-bottom: 0px;
