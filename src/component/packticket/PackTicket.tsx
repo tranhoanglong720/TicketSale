@@ -17,7 +17,7 @@ import TodoSlice, { getPackTicket } from "../reudux/slices/TodoSlice";
 // import { useAppDispatch } from "../reudux/store";
 import { useAppDispatch, useAppSelector } from "../reudux/hook";
 import { useSelector, useDispatch } from "react-redux";
-
+import Pagination from "../pagination/Pagination";
 import { CSVLink } from "react-csv";
 interface TicketsIn {
   id?: string;
@@ -34,7 +34,7 @@ const { Search } = Input;
 
 const cx = classnames.bind(styles);
 const PackTicket = () => {
-  const { setAdd } = useContext(AppContext);
+  const { setAdd, reRender } = useContext(AppContext);
   const [packed, setPacked] = useState<Boolean>(true);
   // const [Tickets, setTickets] = useState<TicketsIn[] | null>([]);
   // const dispatch = useAppDispatch();
@@ -48,10 +48,11 @@ const PackTicket = () => {
   const handleChangePacked = () => {
     setPacked(!packed);
   };
+  console.log(reRender);
   console.log(Tickets);
   useEffect(() => {
     dispatch(getPackTicket());
-  }, [dispatch, Tickets]);
+  }, [dispatch, Tickets, reRender]);
   const headers = [
     { label: "STT", key: "index" },
     { label: "Booking Code", key: "id" },
@@ -77,6 +78,16 @@ const PackTicket = () => {
     headers: headers,
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(9);
+
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentTickets = Tickets.slice(indexOfFirstPost, indexOfLastPost);
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   return (
     <Container fluid className={cx("wrap_ListSK")}>
       <h3 style={{ fontWeight: "bold" }}>Danh Sách Vé</h3>
@@ -93,9 +104,26 @@ const PackTicket = () => {
         </div>
       </div>
       <div className={cx("tblSk")}>
-        <Table_PackTicket data={Tickets} />
+        <Table_PackTicket data={currentTickets} />
       </div>
       <ModalAdd />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "absolute",
+          bottom: 15,
+          left: "50%",
+        }}
+      >
+        <Pagination
+          postsPerPage={postsPerPage}
+          totalPosts={Tickets.length}
+          paginate={paginate}
+        />
+      </div>
     </Container>
   );
 };

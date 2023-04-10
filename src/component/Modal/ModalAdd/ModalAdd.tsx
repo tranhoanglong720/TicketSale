@@ -44,7 +44,7 @@ const ModalAdd: React.FC = () => {
   //     console.error(error);
   //   });
 
-  const { add, setAdd } = useContext(AppContext);
+  const { add, setAdd, setRerender, reRender } = useContext(AppContext);
   const [checkOne, setCheckOne] = useState<boolean>(false);
   const [checkMulti, setCheckMulti] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -77,6 +77,7 @@ const ModalAdd: React.FC = () => {
         dispatch(TodoSlice.actions.addListTicket(Tickets));
       }
     }, 5000);
+    setRerender(!reRender);
   };
 
   const handleCancel = () => {

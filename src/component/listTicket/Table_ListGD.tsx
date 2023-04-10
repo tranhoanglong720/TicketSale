@@ -11,6 +11,7 @@ interface TicketsIn {
   nameSK: string;
   priceVe: number;
   stateUsed: string;
+  datePublish: string;
 }
 type Props = { data: TicketsIn[] };
 
@@ -36,7 +37,7 @@ const Table_ListGD = (props: Props) => {
           {props.data?.map((item: TicketsIn, index) => (
             <tr key={index}>
               <td>{index}</td>
-              <td>ALT20210501</td>
+              <td>ALT20210501{index}</td>
 
               <td>{item.idVe}</td>
               {item.stateUsed === "true1" ? (
@@ -63,7 +64,7 @@ const Table_ListGD = (props: Props) => {
                 </td>
               )}
               <td>{item.dateUsed}</td>
-              <td>23-10-2022</td>
+              <td>{item.datePublish}</td>
               <td>{item.gateCheck}</td>
             </tr>
           ))}

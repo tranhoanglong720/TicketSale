@@ -24,7 +24,7 @@ interface TicketsIn {
 type Props = { data: TicketsIn };
 const cx = classNames.bind(styles);
 const ModalUpdate = (props: Props) => {
-  const { update, setUpdate } = useContext(AppContext);
+  const { update, setUpdate, reRender, setRerender } = useContext(AppContext);
   const [Tickets, setTickets] = useState<TicketsIn>({
     id: props.data.id,
     nameTick: props.data.nameTick,
@@ -58,6 +58,7 @@ const ModalUpdate = (props: Props) => {
     //   .catch(alert);
     // update(ref(db), updates);
     dispatch(TodoSlice.actions.updatePackTicket(Tickets));
+    setRerender(!reRender);
   };
 
   const handleCancel = () => {

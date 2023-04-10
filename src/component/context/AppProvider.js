@@ -10,6 +10,7 @@ function AppProvider({ children }) {
   const [item, setItem] = useState({});
   const [active, setActive] = useState("QuanLy");
   const [packed, setPacked] = useState(true);
+  const [reRender, setRerender] = useState(false);
 
   const clearState = () => {
     setShow(false);
@@ -19,6 +20,7 @@ function AppProvider({ children }) {
     setActive("");
     setStatus("");
     setchangeDate(false);
+    setRerender(false);
     setItem({});
   };
   return (
@@ -40,6 +42,8 @@ function AppProvider({ children }) {
         setStatus,
         packed,
         setPacked,
+        reRender,
+        setRerender,
         clearState,
       }}
     >

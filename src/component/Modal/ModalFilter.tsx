@@ -60,7 +60,6 @@ const ModalFilter: React.FC = () => {
         case "GATE":
           if (item === "") {
             setFilter({ ...filter, gate: [""] });
-
             dispatch(FilterSlice.actions.Gate([]));
           } else {
             setFilter({ ...filter, gate: [...filter.gate, item] });
